@@ -9,7 +9,7 @@
         
         
         try{
-            $sqlregister = "INSERT INTO `table_registeration`(`user_email`, `user_name`, `user_phone`, `user_address`, `user_password`) VALUES ('$email','$name','$phone','$address','$password')";
+            $sqlregister = "INSERT INTO `tbl_customer`(`user_email`, `user_name`, `user_phone`, `user_address`, `user_password`) VALUES ('$email','$name','$phone','$address','$password')";
             $conn->exec($sqlregister);
             $last_id= $conn->lastInsertId();
             if(file_exists($_FILES["fileToUpload"]["tmp_name"]) || is_uploaded_file($_FILES["fileToUpload"]["tmp_name"])){
@@ -23,7 +23,7 @@
     }
     
     function uploadImage($id){
-        $target_dir = "../../../assets/user_image/";
+        $target_dir = "../../../assets/user_image/"; 
         $target_file = $target_dir. $id .".png";
         move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file);
     }

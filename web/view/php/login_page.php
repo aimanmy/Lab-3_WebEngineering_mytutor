@@ -3,15 +3,26 @@ if(isset($_POST["submit"])){
     include 'dbconnect.php';
     $email = $_POST["email"];
     $pass = sha1($_POST["password"]);
-    $sqllogin = "SELECT * FROM table_registeration WHERE user_email ='$email' AND user_password = '$pass'";
+    $sqllogin = "SELECT * FROM tbl_customer WHERE user_email ='$email' AND user_password = '$pass'";
     $stmt = $conn->prepare($sqllogin);
     $stmt->execute();
-    $number_of_rows = $stmt->fetchColumn();
+    $number_of_rows = $stmt->rowCount();
+    $result = $stmt -> setFetchMode(PDO:: FETCH_ASSOC);
+    $rows = $stmt -> fetchAll();
 
     if($number_of_rows > 0){
+        foreach($rows as $user){
+            $id = $user['user_id'];
+            $email = $user['user_email'];
+            $name = $user['user_name'];
+            $phone = $user['user_phone'];
+        }
         session_start();
         $_SESSION["sessionid"] = session_id();
+        $_SESSION["id"] = $id ;
         $_SESSION["email"] = $email ;
+        $_SESSION["name"] = $name;
+        $_SESSION["phone"] = $phone;
         echo "<script>alert('Login Successful');</script>";
         echo "<script>window.location.replace('main_screen.php')</script>";
     }else{
@@ -29,8 +40,7 @@ if(isset($_POST["submit"])){
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-    <title>Login</title>
-    <script src = "../js/script.js" ></script>
+    <script src = "../js/login_page.js" ></script>
     
 </head>
 
@@ -72,11 +82,11 @@ if(isset($_POST["submit"])){
     <div class = "w3-container w3-padding-64 form-container">
         <div class = "w3-card-4">
             <div class = "w3-container w3-pink">
-                <h2>Login</h2>
+                <h2 class="w3-cursive">Login</h2>
             </div>
             <form  name="loginForm" class="w3-container" action="login_page.php" method="post">
                 <p>
-                    <a href= "register_page.php"class="w3-btn w3-round w3-pink w3-bar-block w3-right" name="submit">Register</a>
+                    <a href= "register_page.php"class="w3-btn w3-round w3-pink w3-bar-block w3-right w3-cursive" name="submit">Register</a>
                 </p>
                 
                 <p><br>
@@ -92,7 +102,7 @@ if(isset($_POST["submit"])){
                     <label>Remember Me</label>
                 </p>
                 <p>
-                    <button class="w3-btn w3-round w3-pink w3-block" name="submit">Login</button>
+                    <button class="w3-btn w3-round w3-pink w3-block w3-cursive" name="submit">Login</button>
                 </p>
             </form>
         </div>
@@ -109,7 +119,7 @@ if(isset($_POST["submit"])){
         </div>
         <br><br></div>
     
-        <footer class="w3-footer w3-center w3-bottom w3-pink">MyTutor</footer>
+        <footer class="w3-footer w3-center w3-bottom w3-pink w3-cursive">MyTutor</footer>
 
 </body>
 

@@ -2,11 +2,11 @@
 session_start();
 include_once("dbconnect.php");
 if (isset($_SESSION['sessionid'])) {
-    $user_id = $_SESSION['id'];
     $user_email = $_SESSION['email'];
     $user_name = $_SESSION['name'];
     $user_phone = $_SESSION['phone'];
-    $sqlsubjects = "SELECT * FROM tbl_subjects";
+    $sqltutors = "SELECT * FROM tbl_tutors";
+   
 }
 
 $results_per_page = 10;
@@ -18,16 +18,16 @@ if (isset($_GET['pageno'])) {
     $page_first_result = 0;
 }
 
-$stmt = $conn->prepare($sqlsubjects);
+$stmt = $conn->prepare($sqltutors);
 $stmt->execute();
 $number_of_result = $stmt->rowCount();
 $number_of_page = ceil($number_of_result / $results_per_page);
-$sqlsubjects = $sqlsubjects . " LIMIT $page_first_result , $results_per_page";
-$stmt = $conn->prepare($sqlsubjects);
+$sqltutors = $sqltutors . " LIMIT $page_first_result , $results_per_page";
+$stmt = $conn->prepare($sqltutors);
 $stmt->execute();
 $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
 $rows = $stmt->fetchAll();
-
+$conn= null;
 
 function truncate($string, $length, $dots = "...") {
     return (strlen($string) > $length) ? substr($string, 0, $length - strlen($dots)) . $dots : $string;
@@ -44,11 +44,13 @@ function truncate($string, $length, $dots = "...") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="../css/stylepage.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="../js/menu.js" defer></script>
+    
 
+    <title>Welcome to MyTutor</title>
 </head>
 
 <body>
@@ -65,27 +67,26 @@ function truncate($string, $length, $dots = "...") {
     <div class="w3-pink">
         <button class="w3-button w3-pink w3-xlarge" onclick="w3_open()">☰</button>
         <div class="w3-container w3-center">
-            <h3 class="w3-cursive">Welcome to MyTutor</h3>
+            <h3 class="w3-cursive">Tutor Profile</h3>
         </div>
     </div>
 
     <div class="w3-grid-template">
         <?php
         $i = 0;
-        foreach ($rows as $subject){
+        foreach ($rows as $tutor){
             $i++;
-            $subid = $subject['subject_id'];
-            $subname = truncate($subject['subject_name'],20);
-            $subdesc = $subject['subject_description'];
-            $subprice = number_format((float)$subject['subject_price'], 2, '.', '');
-            $subsession = $subject['subject_sessions'];
-            $subrate=  number_format((float)$subject['subject_rating'], 2, '.', '');
-            echo "<div class='w3-card-4' style='margin:4px'>
-            <header class='w3-container w3-green w3-center' style='text-shadow:1px 1px 0 #444'><h5><b>$subname</b></h5></header>";
-            echo "<a href='subject_detailspage.php?prid=$subid' style='text-decoration: none;'> <img class='w3-image' src=../../../assets/courses/$subid.png" .
-            " onerror=this.onerror=null;this.src='../../admin/res/newproduct.jpg'"
-            . " style='width:100%;height:250px'></a><hr>";
-            echo "<div class='w3-container w3-cursive'><p><b>Subject Description:</b> $subdesc<br><b>Price:</b> RM $subprice<br><b>Subject Session:</b> $subsession<br><b>Subject Rating:</b> $subrate<br><div class='w3-button w3-pink w3-border w3-border-pink w3-hover-white w3-round-xlarge ' style='width:100% ' onClick='addCart($subid)'><b>Subscribe</b></div></p></div>
+            $tutorid = $tutor['tutor_id'];
+            $tutorname = truncate($tutor['tutor_name'],20);
+            $tutoremail = $tutor['tutor_email'];
+            $tutorphone = $tutor['tutor_phone'];
+            $tutordesc = $tutor['tutor_description'];
+            echo "<div class='w3-card-4 w3-round' style='margin:4px'>
+            <header class='w3-container w3-green w3-center'style='text-shadow:1px 1px 0 #444'><h5><b>$tutorname</b></h5></header>";
+            echo "<a href='productdetails.php?prid=$tutorid' style='text-decoration: none;'> <img class='w3-image' src=../../../assets/tutors/$tutorid.jpg" .
+                " onerror=this.onerror=null;this.src='../../admin/res/newproduct.jpg'"
+                . " style='width:100%;height:250px'></a><hr>";
+            echo "<div class='w3-container w3-cursive'><p><b>Tutor Email:</b> $tutoremail<br><b>Tutor Phone Number:</b> $tutorphone<br><b>Tutor Description:</b> $tutordesc<br></p></div>
             </div>";
         }
         ?>
@@ -103,7 +104,7 @@ function truncate($string, $length, $dots = "...") {
     echo "<div class='w3-container w3-row'>";
     echo "<center>";
     for ($page = 1; $page <= $number_of_page; $page++) {
-        echo '<a href = "main_screen.php?pageno=' . $page . '" style=
+        echo '<a href = "tutorpage.php?pageno=' . $page . '" style=
             "text-decoration: none">&nbsp&nbsp' . $page . ' </a>';
     }
     echo " ( " . $pageno . " )";
@@ -111,7 +112,7 @@ function truncate($string, $length, $dots = "...") {
     echo "</div>";
     ?>
     <br>
-    <footer class="w3-footer w3-center w3-bottom w3-pink w3-cursive">MyTutor</footer>
+    <footer class="w3-footer w3-center w3-bottom w3-pink cursive">Mytutor</footer>
 
 </body>
 
