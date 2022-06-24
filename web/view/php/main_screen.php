@@ -6,8 +6,22 @@ if (isset($_SESSION['sessionid'])) {
     $user_email = $_SESSION['email'];
     $user_name = $_SESSION['name'];
     $user_phone = $_SESSION['phone'];
+}else{
+    echo "<script>alert('Session not available. Please login');</script>";
+    echo "<script> window.location.replace('login.php')</script>";
+}
+
+if (isset($_GET['submit'])) {
+    $operation = $_GET['submit'];
+    if ($operation == 'search') {
+        $search = $_GET['search'];
+        $sqlsubjects = "SELECT * FROM tbl_subjects WHERE subject_name LIKE '%$search%'";
+    }
+} else {
     $sqlsubjects = "SELECT * FROM tbl_subjects";
 }
+
+
 
 $results_per_page = 10;
 if (isset($_GET['pageno'])) {
@@ -68,6 +82,17 @@ function truncate($string, $length, $dots = "...") {
             <h3 class="w3-cursive">Welcome to MyTutor</h3>
         </div>
     </div>
+    <div class="w3-card w3-container w3-padding w3-margin w3-round">
+        <h3 class="w3-cursive"><b>Subject Search</b></h3>
+        <form>
+            <div class="w3-row">
+                <div class="w3-half" style="padding-right:4px">
+                    <p><input class="w3-input w3-block w3-round w3-border" type="search" name="search" placeholder="Enter search term" /></p>
+                </div>
+            </div>
+            <button class="w3-button w3-pink w3-round w3-right" type="submit" name="submit" value="search">search</button>
+        </form>
+    </div>
 
     <div class="w3-grid-template">
         <?php
@@ -82,8 +107,8 @@ function truncate($string, $length, $dots = "...") {
             $subrate=  number_format((float)$subject['subject_rating'], 2, '.', '');
             echo "<div class='w3-card-4' style='margin:4px'>
             <header class='w3-container w3-green w3-center' style='text-shadow:1px 1px 0 #444'><h5><b>$subname</b></h5></header>";
-            echo "<a href='subject_detailspage.php?prid=$subid' style='text-decoration: none;'> <img class='w3-image' src=../../../assets/courses/$subid.png" .
-            " onerror=this.onerror=null;this.src='../../admin/res/newproduct.jpg'"
+            echo "<a href='subjectdetails.php?subid=$subid' style='text-decoration: none;'> <img class='w3-image' src=../../../assets/courses/$subid.jpg" .
+            " onerror=this.onerror=null;"
             . " style='width:100%;height:250px'></a><hr>";
             echo "<div class='w3-container w3-cursive'><p><b>Subject Description:</b> $subdesc<br><b>Price:</b> RM $subprice<br><b>Subject Session:</b> $subsession<br><b>Subject Rating:</b> $subrate<br><div class='w3-button w3-pink w3-border w3-border-pink w3-hover-white w3-round-xlarge ' style='width:100% ' onClick='addCart($subid)'><b>Subscribe</b></div></p></div>
             </div>";

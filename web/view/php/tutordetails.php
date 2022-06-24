@@ -5,33 +5,37 @@ if (isset($_SESSION['sessionid'])) {
     $user_email = $_SESSION['email'];
     $user_name = $_SESSION['name'];
     $user_phone = $_SESSION['phone'];
-    $sqltutors = "SELECT * FROM tbl_tutors";
-   
+}else{
+    echo "<script>alert('Session not available. Please login');</script>";
+    echo "<script> window.location.replace('login_page.php')</script>";
 }
 
-$results_per_page = 10;
-if (isset($_GET['pageno'])) {
-    $pageno = (int)$_GET['pageno'];
-    $page_first_result = ($pageno - 1) * $results_per_page;
+if (isset($_GET['tutorid'])) {
+    $tutorid = $_GET['tutorid'];
+    $sqltutors= "SELECT * FROM tbl_tutors WHERE tutor_id = '$tutorid'";
+    $stmt = $conn->prepare($sqltutors);
+    $stmt->execute();
+    $number_of_result = $stmt->rowCount();
+    if ($number_of_result > 0) {
+        $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
+        $rows = $stmt->fetchAll();
+    } else {
+        echo "<script>alert('Product not found.');</script>";
+        echo "<script> window.location.replace('tutor_page.php')</script>";
+    }
 } else {
-    $pageno = 1;
-    $page_first_result = 0;
+    echo "<script>alert('Page Error.');</script>";
+    echo "<script> window.location.replace('tutor_page.php')</script>";
 }
 
-$stmt = $conn->prepare($sqltutors);
-$stmt->execute();
-$number_of_result = $stmt->rowCount();
-$number_of_page = ceil($number_of_result / $results_per_page);
-$sqltutors = $sqltutors . " LIMIT $page_first_result , $results_per_page";
-$stmt = $conn->prepare($sqltutors);
-$stmt->execute();
-$result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
-$rows = $stmt->fetchAll();
-$conn= null;
-
-function truncate($string, $length, $dots = "...") {
-    return (strlen($string) > $length) ? substr($string, 0, $length - strlen($dots)) . $dots : $string;
-}
+$sqlsubTutor= "SELECT subject_name FROM tbl_subjects WHERE tutor_id = '$tutorid'";
+    $stmt = $conn->prepare($sqlsubTutor);
+    $stmt->execute();
+    $number_of_result = $stmt->rowCount();
+    if ($number_of_result > 0) {
+        $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
+        $rows2 = $stmt->fetchAll();
+    }
 ?>
 
 
@@ -66,52 +70,42 @@ function truncate($string, $length, $dots = "...") {
 
     <div class="w3-pink">
         <button class="w3-button w3-pink w3-xlarge" onclick="w3_open()">☰</button>
-        <div class="w3-container w3-center">
-            <h3 class="w3-cursive">Tutor Profile</h3>
+        <div class="w3-container ">
+            <div class="w3-bar w3-pink">
+                <a href="tutor_page.php" class="w3-bar-item w3-button w3-left w3-cursive w3-black">Back</a>
+                <h3 class="w3-cursive w3-center">Tutor Details</h3><br>
+            </div>
         </div>
     </div>
 
-    <div class="w3-grid-template">
+    <div >
         <?php
         $i = 0;
         foreach ($rows as $tutor){
             $i++;
             $tutorid = $tutor['tutor_id'];
-            $tutorname = truncate($tutor['tutor_name'],20);
+            $tutorname = ($tutor['tutor_name']);
             $tutoremail = $tutor['tutor_email'];
             $tutorphone = $tutor['tutor_phone'];
             $tutordesc = $tutor['tutor_description'];
-            echo "<div class='w3-card-4 w3-round' style='margin:4px'>
-            <header class='w3-container w3-green w3-center'style='text-shadow:1px 1px 0 #444'><h5><b>$tutorname</b></h5></header>";
-            echo "<a href='tutordetails.php?tutorid=$tutorid' style='text-decoration: none;'> <img class='w3-image' src=../../../assets/tutors/$tutorid.jpg" .
-                " onerror=this.onerror=null;this.src='../../admin/res/newproduct.jpg'"
-                . " style='width:100%;height:250px'></a><hr>";
+
+            echo "<div class='w3-padding w3-center'> <img class='w3-image resimg' src=../../../assets/tutors/$tutorid.jpg" .
+            " onerror=this.onerror=null;"
+            . " ></div><hr>";
+            echo "<div class='w3-container w3-padding-large'><h4><b>$tutorname</b></h4>";
             echo "<div class='w3-container w3-cursive'><p><b>Tutor Email:</b> $tutoremail<br><b>Tutor Phone Number:</b> $tutorphone<br><b>Tutor Description:</b> $tutordesc<br></p></div>
             </div>";
         }
+        echo "<div class='w3-cursive'><p><b>Subject Tutoring:</b></p></div>
+            </div>";
+        $z = 0;
+        foreach ($rows2 as $sub){
+            $z++;
+            $subTutor = $sub['subject_name'];
+            echo "<p class='w3-cursive'>$subTutor</p>";
+        }
         ?>
     </div>
-    <br>
-    <?php
-    $num = 1;
-    if ($pageno == 1) {
-        $num = 1;
-    } else if ($pageno == 2) {
-        $num = ($num) + 10;
-    } else {
-        $num = $pageno * 10 - 9;
-    }
-    echo "<div class='w3-container w3-row'>";
-    echo "<center>";
-    for ($page = 1; $page <= $number_of_page; $page++) {
-        echo '<a href = "tutorpage.php?pageno=' . $page . '" style=
-            "text-decoration: none">&nbsp&nbsp' . $page . ' </a>';
-    }
-    echo " ( " . $pageno . " )";
-    echo "</center>";
-    echo "</div>";
-    ?>
-    <br>
     <footer class="w3-footer w3-center w3-bottom w3-pink cursive">Mytutor</footer>
 
 </body>
